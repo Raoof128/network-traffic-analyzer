@@ -1,0 +1,88 @@
+# Alert Configuration
+
+# Alert Manager Settings
+alert_manager:
+  log_file: 'logs/alerts.log'
+  console_output: true
+  save_to_file: true
+
+  # Alert channels
+  channels:
+    console: true
+    file: true
+    email: false    # Requires SMTP setup
+    webhook: false  # Requires webhook URL
+
+# Severity Levels
+severity:
+  LOW:
+    enabled: true
+    color: 'green'
+    icon: '🟢'
+
+  MEDIUM:
+    enabled: true
+    color: 'yellow'
+    icon: '🟡'
+
+  HIGH:
+    enabled: true
+    color: 'orange'
+    icon: '🟠'
+
+  CRITICAL:
+    enabled: true
+    color: 'red'
+    icon: '🔴'
+
+# Alert Rules
+rules:
+  # Minimum severity to trigger alerts
+  min_severity: 'LOW'
+
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    max_alerts_per_minute: 100
+
+  # Deduplication
+  deduplication:
+    enabled: true
+    window_seconds: 60
+
+  # Auto-escalation
+  auto_escalate:
+    enabled: false
+    threshold: 10  # Escalate after N similar alerts
+
+# Notification Templates
+templates:
+  console:
+    format: '{icon} ALERT [{severity}] - {anomaly_type}\n   Timestamp: {timestamp}\n   Source: {src_ip}:{src_port}\n   Destination: {dst_ip}:{dst_port}\n   Protocol: {protocol}'
+
+  file:
+    format: 'json'  # json or csv
+
+# Email Settings (if enabled)
+email:
+  smtp_server: 'smtp.gmail.com'
+  smtp_port: 587
+  use_tls: true
+  sender: 'alerts@example.com'
+  recipients:
+    - 'admin@example.com'
+  subject_prefix: '[NTA Alert]'
+
+# Webhook Settings (if enabled)
+webhook:
+  url: 'https://hooks.example.com/alerts'
+  method: 'POST'
+  headers:
+    Content-Type: 'application/json'
+  timeout: 10
+
+# Alert History
+history:
+  max_alerts: 10000
+  retention_days: 30
+  export_format: 'json'

@@ -1,0 +1,68 @@
+# Threshold-based Detection Rules
+
+# Packet size rules
+packet_size:
+  # Maximum allowed packet size (bytes)
+  max_size: 1500
+  # Minimum packet size for fragmentation detection
+  min_size: 64
+
+# Port-based rules
+ports:
+  # Suspicious ports to monitor
+  suspicious:
+    - 22    # SSH
+    - 23    # Telnet
+    - 135   # RPC
+    - 137   # NetBIOS
+    - 138   # NetBIOS
+    - 139   # NetBIOS
+    - 445   # SMB
+    - 3389  # RDP
+    - 5900  # VNC
+
+  # Well-known attack ports
+  attack_ports:
+    - 1337  # Common backdoor
+    - 31337 # Elite backdoor
+    - 12345 # NetBus
+    - 54321 # Back Orifice
+
+# Connection rate limits
+connection_limits:
+  # Maximum connections per IP per minute
+  max_connections_per_ip: 100
+  # Maximum connection attempts per IP per minute
+  max_attempts_per_ip: 50
+  # Port scan detection threshold (different ports contacted)
+  port_scan_threshold: 20
+
+# Protocol-based rules
+protocols:
+  # Block ICMP floods
+  icmp_rate_limit: 10  # packets per second
+  # Detect SYN floods
+  syn_rate_limit: 50   # SYN packets per second
+
+# Anomaly score thresholds
+thresholds:
+  # Alert severity levels
+  high: 0.9     # High severity anomaly score
+  medium: 0.7   # Medium severity
+  low: 0.5      # Low severity
+
+# Time-based rules
+time_windows:
+  # Analysis window (seconds)
+  analysis_window: 30
+  # Connection timeout (seconds)
+  connection_timeout: 120
+  # Reset counters interval (seconds)
+  counter_reset_interval: 300
+
+# Detection modes
+modes:
+  # Enable/disable specific detection types
+  enable_threshold: true
+  enable_ml: true
+  enable_hybrid: true

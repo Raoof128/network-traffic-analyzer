@@ -1,0 +1,63 @@
+# Model Configuration
+
+# Unsupervised Models
+unsupervised:
+  isolation_forest:
+    contamination: 0.1  # Expected proportion of anomalies
+    n_estimators: 100   # Number of trees
+    max_samples: 256    # Samples per tree
+    random_state: 42
+
+  one_class_svm:
+    kernel: 'rbf'       # Kernel type: rbf, linear, poly, sigmoid
+    gamma: 'scale'      # Kernel coefficient
+    nu: 0.1             # Upper bound on fraction of anomalies
+
+  kmeans:
+    n_clusters: 5       # Number of clusters
+    anomaly_percentile: 95  # Distance threshold percentile
+    random_state: 42
+
+# Supervised Models
+supervised:
+  random_forest:
+    n_estimators: 200   # Number of trees
+    max_depth: null     # Maximum depth (null = unlimited)
+    min_samples_split: 2
+    random_state: 42
+
+  svm:
+    kernel: 'rbf'
+    C: 1.0              # Regularization parameter
+    gamma: 'scale'
+    probability: true   # Enable probability estimates
+
+  ensemble:
+    voting: 'soft'      # Voting strategy: hard or soft
+    random_state: 42
+
+# Feature Preprocessing
+preprocessing:
+  normalization: 'standard'  # Options: standard, minmax, robust
+  missing_strategy: 'mean'   # Options: mean, median, zero, drop
+  variance_threshold: 0.01
+  outlier_detection: true
+  outlier_threshold: 3.0
+
+# Model Evaluation
+evaluation:
+  test_size: 0.2          # Proportion of data for testing
+  cv_folds: 5             # Cross-validation folds
+  random_state: 42
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+
+# Model Persistence
+persistence:
+  model_dir: 'models/trained_models'
+  auto_save: true
+  include_timestamp: false

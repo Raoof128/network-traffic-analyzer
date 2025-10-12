@@ -1,0 +1,186 @@
+# Feature Extraction Configuration
+
+# Packet-level features to extract
+packet_features:
+  # Protocol information
+  - name: protocol
+    type: categorical
+    description: "Protocol type (TCP, UDP, ICMP, etc.)"
+
+  - name: ip_version
+    type: categorical
+    description: "IP version (4 or 6)"
+
+  # Network layer
+  - name: src_ip
+    type: string
+    description: "Source IP address"
+
+  - name: dst_ip
+    type: string
+    description: "Destination IP address"
+
+  # Transport layer
+  - name: src_port
+    type: numeric
+    description: "Source port number"
+
+  - name: dst_port
+    type: numeric
+    description: "Destination port number"
+
+  # Packet size
+  - name: packet_size
+    type: numeric
+    description: "Total packet size in bytes"
+
+  - name: header_size
+    type: numeric
+    description: "Header size in bytes"
+
+  - name: payload_size
+    type: numeric
+    description: "Payload size in bytes"
+
+  # TCP specific
+  - name: tcp_flags
+    type: categorical
+    description: "TCP flags (SYN, ACK, FIN, RST, PSH, URG)"
+
+  - name: tcp_window_size
+    type: numeric
+    description: "TCP window size"
+
+  # Timing
+  - name: timestamp
+    type: numeric
+    description: "Packet timestamp"
+
+# Flow-level features (aggregated from multiple packets)
+flow_features:
+  # Flow identification
+  - name: flow_id
+    type: string
+    description: "Unique flow identifier (src_ip:src_port -> dst_ip:dst_port)"
+
+  # Duration
+  - name: flow_duration
+    type: numeric
+    description: "Total flow duration in seconds"
+
+  # Packet counts
+  - name: total_packets
+    type: numeric
+    description: "Total packets in flow"
+
+  - name: forward_packets
+    type: numeric
+    description: "Packets from source to destination"
+
+  - name: backward_packets
+    type: numeric
+    description: "Packets from destination to source"
+
+  # Bytes
+  - name: total_bytes
+    type: numeric
+    description: "Total bytes in flow"
+
+  - name: forward_bytes
+    type: numeric
+    description: "Bytes from source to destination"
+
+  - name: backward_bytes
+    type: numeric
+    description: "Bytes from destination to source"
+
+  # Rates
+  - name: packets_per_second
+    type: numeric
+    description: "Average packets per second"
+
+  - name: bytes_per_second
+    type: numeric
+    description: "Average bytes per second"
+
+  # Statistics
+  - name: avg_packet_size
+    type: numeric
+    description: "Average packet size in flow"
+
+  - name: std_packet_size
+    type: numeric
+    description: "Standard deviation of packet size"
+
+  - name: min_packet_size
+    type: numeric
+    description: "Minimum packet size in flow"
+
+  - name: max_packet_size
+    type: numeric
+    description: "Maximum packet size in flow"
+
+  # Inter-arrival time
+  - name: avg_iat
+    type: numeric
+    description: "Average inter-arrival time between packets (ms)"
+
+  - name: std_iat
+    type: numeric
+    description: "Standard deviation of inter-arrival time"
+
+  # TCP specific flow features
+  - name: syn_count
+    type: numeric
+    description: "Number of SYN flags"
+
+  - name: ack_count
+    type: numeric
+    description: "Number of ACK flags"
+
+  - name: fin_count
+    type: numeric
+    description: "Number of FIN flags"
+
+  - name: rst_count
+    type: numeric
+    description: "Number of RST flags"
+
+  - name: psh_count
+    type: numeric
+    description: "Number of PSH flags"
+
+  - name: urg_count
+    type: numeric
+    description: "Number of URG flags"
+
+# Feature engineering settings
+preprocessing:
+  # Normalization method
+  normalization: "standard"  # Options: standard, minmax, robust
+
+  # Handle missing values
+  missing_value_strategy: "mean"  # Options: mean, median, zero, drop
+
+  # Outlier handling
+  outlier_detection: true
+  outlier_threshold: 3.0  # Standard deviations from mean
+
+  # Feature selection
+  feature_selection: true
+  variance_threshold: 0.01  # Remove low variance features
+
+  # Dimensionality reduction
+  pca_enabled: false
+  pca_components: 0.95  # Retain 95% variance
+
+# Flow window settings
+flow_window:
+  # Window size for flow aggregation (seconds)
+  window_size: 30
+
+  # Overlap between windows (seconds)
+  overlap: 10
+
+  # Timeout for inactive flows (seconds)
+  flow_timeout: 120

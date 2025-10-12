@@ -1,0 +1,56 @@
+# Network Traffic Analyzer - Capture Configuration
+
+# Network Interface Settings
+network:
+  # Default interface (null = auto-detect)
+  interface: null
+  # Promiscuous mode (capture all packets on network segment)
+  promiscuous: true
+
+# Packet Capture Settings
+capture:
+  # Default packet count (0 = unlimited)
+  default_count: 1000
+  # Capture timeout in seconds (null = no timeout)
+  timeout: 60
+  # Store packets in memory
+  store_packets: true
+  # Maximum packets to store (prevents memory overflow)
+  max_stored_packets: 100000
+
+# BPF Filters (Berkeley Packet Filter)
+filters:
+  # Capture only TCP traffic
+  tcp_only: "tcp"
+  # Capture only UDP traffic
+  udp_only: "udp"
+  # Capture HTTP traffic
+  http: "tcp port 80 or tcp port 8080"
+  # Capture HTTPS traffic
+  https: "tcp port 443"
+  # Capture DNS traffic
+  dns: "udp port 53"
+  # Capture SSH traffic
+  ssh: "tcp port 22"
+  # Default filter (null = no filter)
+  default: null
+
+# PCAP File Settings
+pcap:
+  # Output directory for saved captures
+  output_dir: "data/pcaps"
+  # Auto-save captured packets
+  auto_save: false
+  # Filename prefix for auto-saved files
+  filename_prefix: "capture"
+  # Include timestamp in filename
+  timestamp_filename: true
+
+# Performance Settings
+performance:
+  # Buffer size for packet capture (bytes)
+  buffer_size: 2097152  # 2MB
+  # Enable multi-threaded capture
+  multi_threaded: false
+  # Memory limit for stored packets (MB)
+  memory_limit_mb: 1024  # 1GB
