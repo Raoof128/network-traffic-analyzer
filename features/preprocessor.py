@@ -14,6 +14,15 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+# Import secure pickle utilities
+try:
+    from utils.secure_pickle import safe_save, safe_load
+    SECURE_PICKLE_AVAILABLE = True
+except ImportError:
+    SECURE_PICKLE_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("Secure pickle utilities not available, falling back to standard pickle")
+
 try:  # pragma: no cover - optional dependency
     from sklearn.decomposition import PCA  # type: ignore
     from sklearn.impute import SimpleImputer  # type: ignore
@@ -502,17 +511,25 @@ class FeaturePreprocessor:
         return df
 
     def save(self, filepath: str):
-        """Save preprocessor to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved preprocessor to {filepath}")
+        """Save preprocessor to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved preprocessor to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved preprocessor to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'FeaturePreprocessor':
-        """Load preprocessor from disk"""
-        with open(filepath, 'rb') as f:
-            preprocessor = pickle.load(f)
-        logger.info(f"Loaded preprocessor from {filepath}")
+        """Load preprocessor from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            preprocessor = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded preprocessor from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                preprocessor = pickle.load(f)
+            logger.info(f"Loaded preprocessor from {filepath}")
         return preprocessor
 
 

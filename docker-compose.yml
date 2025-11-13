@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # Network Traffic Analyzer - Main Service
+  analyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: network-traffic-analyzer:latest
+    container_name: nta-analyzer
+    hostname: nta-analyzer
+    restart: unless-stopped
+
+    # Network mode: host allows packet capture on host interfaces
+    network_mode: host
+
+    # Capabilities required for packet capture
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+    # Environment variables
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - NTA_EMAIL_PASSWORD=${NTA_EMAIL_PASSWORD:-}
+
+    # Volumes for persistent data
+    volumes:
+      # Configuration files
+      - ./config:/app/config:ro
+
+      # Data persistence
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./models:/app/models
+
+      # Optional: Mount PCAP files from host
+      - ${PCAP_DIR:-./data/pcaps}:/app/pcaps:ro
+
+    # Command to run (override as needed)
+    command: >
+      python analyzer.py
+      --mode realtime
+      --interface ${INTERFACE:-eth0}
+      --log-file logs/analyzer.log
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: API Service (FastAPI)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: network-traffic-analyzer:latest
+    container_name: nta-api
+    hostname: nta-api
+    restart: unless-stopped
+
+    # API doesn't need host network
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+
+    command: >
+      python -m uvicorn api.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 4
+
+    profiles:
+      - api
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Dashboard Service (WebSocket + Web UI)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: network-traffic-analyzer:latest
+    container_name: nta-dashboard
+    hostname: nta-dashboard
+    restart: unless-stopped
+
+    ports:
+      - "${DASHBOARD_PORT:-8080}:8080"
+
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+
+    command: >
+      python -m dashboard.server
+      --host 0.0.0.0
+      --port 8080
+
+    profiles:
+      - dashboard
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  # Named volumes for data persistence
+  nta-data:
+    driver: local
+  nta-logs:
+    driver: local
+  nta-models:
+    driver: local
+
+# Networks (optional custom networks)
+networks:
+  default:
+    name: nta-network
+    driver: bridge

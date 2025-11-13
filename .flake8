@@ -1,0 +1,57 @@
+[flake8]
+# Maximum line length
+max-line-length = 120
+
+# Maximum complexity
+max-complexity = 15
+
+# Exclude directories
+exclude =
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .mypy_cache,
+    venv,
+    env,
+    .venv,
+    build,
+    dist,
+    *.egg-info,
+    .tox,
+    docs
+
+# Ignore specific errors
+# E203: whitespace before ':' (conflicts with black)
+# E501: line too long (handled by black)
+# W503: line break before binary operator (conflicts with black)
+# E402: module level import not at top of file (sometimes necessary)
+# F401: imported but unused (handled by autoflake/isort)
+extend-ignore = E203, E501, W503
+
+# Per-file ignores
+per-file-ignores =
+    __init__.py:F401
+    tests/*:F401,F811
+
+# Enable optional checks
+enable-extensions = G
+
+# Show source code for each error
+show-source = True
+
+# Show pep8 error code
+show-pep8 = True
+
+# Count errors
+count = True
+
+# Statistics
+statistics = True
+
+# Format
+format = %(path)s:%(row)d:%(col)d: %(code)s %(text)s
+
+# Plugins configuration
+# darglint - docstring checking
+docstring-convention = google
+strictness = short

@@ -16,6 +16,7 @@ from features.preprocessor import FeaturePreprocessor
 from models.unsupervised import IsolationForestDetector, OneClassSVMDetector, KMeansClusterer
 from models.supervised import RandomForestDetector, SVMDetector, EnsembleDetector
 from models.evaluator import ModelEvaluator
+from utils.validators import InputValidator, ValidationError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -212,6 +213,20 @@ def save_model(model, preprocessor, output_dir: str, model_type: str):
 def main():
     """Main training pipeline"""
     args = parse_arguments()
+
+    # Validate input data file
+    try:
+        InputValidator.validate_csv_file(args.data)
+    except ValidationError as e:
+        logger.error(f"Data file validation failed: {e}")
+        sys.exit(1)
+
+    # Validate output directory
+    try:
+        InputValidator.validate_output_path(args.output, create_dirs=True)
+    except ValidationError as e:
+        logger.error(f"Output path validation failed: {e}")
+        sys.exit(1)
 
     # Load data
     if args.model_type in ['random_forest', 'svm', 'ensemble']:

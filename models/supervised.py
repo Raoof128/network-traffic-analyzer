@@ -15,6 +15,15 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pandas as pd
 
+# Import secure pickle utilities
+try:
+    from utils.secure_pickle import safe_save, safe_load
+    SECURE_PICKLE_AVAILABLE = True
+except ImportError:
+    SECURE_PICKLE_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("Secure pickle utilities not available, falling back to standard pickle")
+
 try:  # pragma: no cover - optional dependency
     from sklearn.ensemble import RandomForestClassifier, VotingClassifier  # type: ignore
     from sklearn.linear_model import LogisticRegression  # type: ignore
@@ -238,17 +247,25 @@ class RandomForestDetector:
         return importance_df
 
     def save(self, filepath: str):
-        """Save model to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved Random Forest model to {filepath}")
+        """Save model to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved Random Forest model to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved Random Forest model to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'RandomForestDetector':
-        """Load model from disk"""
-        with open(filepath, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded Random Forest model from {filepath}")
+        """Load model from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            model = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded Random Forest model from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded Random Forest model from {filepath}")
         return model
 
 
@@ -340,17 +357,25 @@ class SVMDetector:
         return probs
 
     def save(self, filepath: str):
-        """Save model to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved SVM model to {filepath}")
+        """Save model to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved SVM model to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved SVM model to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'SVMDetector':
-        """Load model from disk"""
-        with open(filepath, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded SVM model from {filepath}")
+        """Load model from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            model = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded SVM model from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded SVM model from {filepath}")
         return model
 
 
@@ -430,17 +455,25 @@ class EnsembleDetector:
         return probs
 
     def save(self, filepath: str):
-        """Save model to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved Ensemble model to {filepath}")
+        """Save model to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved Ensemble model to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved Ensemble model to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'EnsembleDetector':
-        """Load model from disk"""
-        with open(filepath, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded Ensemble model from {filepath}")
+        """Load model from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            model = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded Ensemble model from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded Ensemble model from {filepath}")
         return model
 
 

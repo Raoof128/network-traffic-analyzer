@@ -16,6 +16,14 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pandas as pd
 
+# Import secure pickle utilities
+try:
+    from utils.secure_pickle import safe_save, safe_load
+    SECURE_PICKLE_AVAILABLE = True
+except ImportError:
+    SECURE_PICKLE_AVAILABLE = False
+    logger.warning("Secure pickle utilities not available, falling back to standard pickle")
+
 try:  # pragma: no cover - optional dependency
     from sklearn.cluster import KMeans  # type: ignore
     from sklearn.ensemble import IsolationForest  # type: ignore
@@ -242,17 +250,25 @@ class IsolationForestDetector:
         return scores
 
     def save(self, filepath: str):
-        """Save model to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved Isolation Forest model to {filepath}")
+        """Save model to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved Isolation Forest model to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved Isolation Forest model to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'IsolationForestDetector':
-        """Load model from disk"""
-        with open(filepath, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded Isolation Forest model from {filepath}")
+        """Load model from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            model = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded Isolation Forest model from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded Isolation Forest model from {filepath}")
         return model
 
 
@@ -336,17 +352,25 @@ class OneClassSVMDetector:
         return scores
 
     def save(self, filepath: str):
-        """Save model to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved One-Class SVM model to {filepath}")
+        """Save model to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved One-Class SVM model to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved One-Class SVM model to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'OneClassSVMDetector':
-        """Load model from disk"""
-        with open(filepath, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded One-Class SVM model from {filepath}")
+        """Load model from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            model = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded One-Class SVM model from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded One-Class SVM model from {filepath}")
         return model
 
 
@@ -443,17 +467,25 @@ class KMeansClusterer:
         return self.model.transform(X).min(axis=1)
 
     def save(self, filepath: str):
-        """Save model to disk"""
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
-        logger.info(f"Saved K-Means model to {filepath}")
+        """Save model to disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            safe_save(self, filepath)
+            logger.info(f"Securely saved K-Means model to {filepath}")
+        else:
+            with open(filepath, 'wb') as f:
+                pickle.dump(self, f)
+            logger.info(f"Saved K-Means model to {filepath}")
 
     @staticmethod
     def load(filepath: str) -> 'KMeansClusterer':
-        """Load model from disk"""
-        with open(filepath, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded K-Means model from {filepath}")
+        """Load model from disk using secure pickle"""
+        if SECURE_PICKLE_AVAILABLE:
+            model = safe_load(filepath, restricted=True)
+            logger.info(f"Securely loaded K-Means model from {filepath}")
+        else:
+            with open(filepath, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded K-Means model from {filepath}")
         return model
 
 

@@ -1,0 +1,123 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/*.log
+*.log
+
+# Data files (exclude large datasets)
+data/pcaps/*.pcap
+data/pcaps/*.pcapng
+data/datasets/*.csv
+*.pcap
+*.pcapng
+
+# Models (exclude trained models from image)
+models/trained_models/*.pkl
+models/trained_models/*.pickle
+*.pkl
+*.pickle
+
+# Reports
+reports/*.html
+reports/*.pdf
+
+# Documentation
+docs/_build/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+.docker/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Editor backup files
+*~
+*.bak
+*.orig
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Development
+requirements-dev.txt
+Makefile
+setup.py
+setup.cfg

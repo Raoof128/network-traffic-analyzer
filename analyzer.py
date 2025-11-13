@@ -19,6 +19,8 @@ from detection.alert_manager import AlertManager, AlertSeverity
 from visualization.plots import TrafficVisualizer
 from visualization.report_generator import HTMLReportGenerator
 from models.unsupervised import IsolationForestDetector
+from utils.validators import InputValidator, ValidationError
+from utils.secure_pickle import safe_load
 
 logging.basicConfig(
     level=logging.INFO,
@@ -156,9 +158,8 @@ def realtime_mode(args):
         model_loaded = False
     else:
         try:
-            with open(args.model, 'rb') as f:
-                model = pickle.load(f)
-            logger.info(f"Loaded model from {args.model}")
+            model = safe_load(args.model, restricted=True)
+            logger.info(f"Securely loaded model from {args.model}")
             model_loaded = True
         except Exception as e:
             logger.error(f"Error loading model: {e}")
@@ -232,9 +233,8 @@ def offline_mode(args):
     anomaly_count = 0  # Initialize anomaly_count
     if args.model:
         try:
-            with open(args.model, 'rb') as f:
-                model = pickle.load(f)
-            logger.info(f"Loaded model from {args.model}")
+            model = safe_load(args.model, restricted=True)
+            logger.info(f"Securely loaded model from {args.model}")
 
             # Load preprocessor
             preprocessor = None
@@ -367,6 +367,18 @@ def main():
             print("No interfaces detected. Ensure you have the necessary permissions.")
         sys.exit(0)
 
+    # Validate inputs based on mode
+    try:
+        is_valid, errors = InputValidator.validate_mode_requirements(args.mode, args)
+        if not is_valid:
+            logger.error("Input validation failed:")
+            for error in errors:
+                logger.error(f"  - {error}")
+            sys.exit(1)
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
+
     try:
         if args.mode == 'realtime':
             realtime_mode(args)
@@ -374,6 +386,9 @@ def main():
             offline_mode(args)
         elif args.mode == 'train':
             train_mode(args)
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Error: {e}", exc_info=True)
         sys.exit(1)

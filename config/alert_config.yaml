@@ -69,6 +69,7 @@ email:
   smtp_port: 587
   use_tls: true
   sender: 'alerts@example.com'
+  password: ''  # Set via environment variable: NTA_EMAIL_PASSWORD
   recipients:
     - 'admin@example.com'
   subject_prefix: '[NTA Alert]'
@@ -80,6 +81,8 @@ webhook:
   headers:
     Content-Type: 'application/json'
   timeout: 10
+  retry_attempts: 3
+  retry_delay: 1
 
 # Alert History
 history:

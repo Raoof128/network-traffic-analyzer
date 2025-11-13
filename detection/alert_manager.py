@@ -9,6 +9,10 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional
 from enum import Enum
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import requests
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,7 +33,9 @@ class AlertManager:
         self,
         log_file: str = "logs/alerts.log",
         console_output: bool = True,
-        save_to_file: bool = True
+        save_to_file: bool = True,
+        email_config: Optional[Dict[str, Any]] = None,
+        webhook_config: Optional[Dict[str, Any]] = None
     ):
         """
         Initialize alert manager
@@ -38,14 +44,26 @@ class AlertManager:
             log_file: Path to alert log file
             console_output: Enable console output
             save_to_file: Save alerts to file
+            email_config: Email configuration (smtp_server, smtp_port, use_tls, sender, password, recipients)
+            webhook_config: Webhook configuration (url, method, headers, timeout)
 
         Example:
-            >>> alert_mgr = AlertManager(log_file="logs/alerts.log")
+            >>> email_cfg = {
+            ...     'smtp_server': 'smtp.gmail.com',
+            ...     'smtp_port': 587,
+            ...     'use_tls': True,
+            ...     'sender': 'alerts@example.com',
+            ...     'password': 'your_password',
+            ...     'recipients': ['admin@example.com']
+            ... }
+            >>> alert_mgr = AlertManager(log_file="logs/alerts.log", email_config=email_cfg)
             >>> alert_mgr.generate_alert("anomaly", packet_info, AlertSeverity.HIGH)
         """
         self.log_file = log_file
         self.console_output = console_output
         self.save_to_file = save_to_file
+        self.email_config = email_config or {}
+        self.webhook_config = webhook_config or {}
 
         self.alert_history: List[Dict[str, Any]] = []
         self.alert_count = 0
@@ -167,20 +185,190 @@ class AlertManager:
                 logger.warning(f"Unknown notification channel: {channel}")
 
     def _send_email_alert(self, alert: Dict[str, Any]):
-        """Send email alert (placeholder - requires SMTP configuration)"""
-        logger.info(f"Email alert would be sent: {alert['anomaly_type']}")
-        # TODO: Implement SMTP email sending
-        # import smtplib
-        # from email.mime.text import MIMEText
-        pass
+        """
+        Send email alert via SMTP
+
+        Args:
+            alert: Alert dictionary to send
+        """
+        if not self.email_config:
+            logger.warning("Email configuration not provided. Skipping email alert.")
+            return
+
+        try:
+            # Extract email configuration
+            smtp_server = self.email_config.get('smtp_server')
+            smtp_port = self.email_config.get('smtp_port', 587)
+            use_tls = self.email_config.get('use_tls', True)
+            sender = self.email_config.get('sender')
+            password = self.email_config.get('password')
+            recipients = self.email_config.get('recipients', [])
+            subject_prefix = self.email_config.get('subject_prefix', '[Network Traffic Analyzer]')
+
+            if not all([smtp_server, sender, password, recipients]):
+                logger.warning("Incomplete email configuration. Required: smtp_server, sender, password, recipients")
+                return
+
+            # Create email message
+            msg = MIMEMultipart('alternative')
+            msg['From'] = sender
+            msg['To'] = ', '.join(recipients)
+            msg['Subject'] = f"{subject_prefix} {alert['severity']} Alert - {alert['anomaly_type']}"
+
+            # Create HTML email body
+            html_body = f"""
+            <html>
+              <head></head>
+              <body>
+                <h2 style="color: {'#ff0000' if alert['severity'] == 'CRITICAL' else '#ff6600' if alert['severity'] == 'HIGH' else '#ffcc00' if alert['severity'] == 'MEDIUM' else '#00cc00'};">
+                  {alert['severity']} Alert: {alert['anomaly_type']}
+                </h2>
+                <table style="border-collapse: collapse; width: 100%;">
+                  <tr style="background-color: #f2f2f2;">
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Alert ID</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{alert['alert_id']}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Timestamp</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{alert['timestamp']}</td>
+                  </tr>
+                  <tr style="background-color: #f2f2f2;">
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Source IP:Port</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{alert['src_ip']}:{alert['src_port']}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Destination IP:Port</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{alert['dst_ip']}:{alert['dst_port']}</td>
+                  </tr>
+                  <tr style="background-color: #f2f2f2;">
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Protocol</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{alert['protocol']}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Packet Size</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{alert['packet_size']} bytes</td>
+                  </tr>
+            """
+
+            if alert.get('additional_info'):
+                html_body += f"""
+                  <tr style="background-color: #f2f2f2;">
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Additional Info</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{json.dumps(alert['additional_info'], indent=2)}</td>
+                  </tr>
+                """
+
+            html_body += """
+                </table>
+                <br>
+                <p style="color: #666; font-size: 12px;">
+                  This is an automated alert from Network Traffic Analyzer. Please review and take appropriate action.
+                </p>
+              </body>
+            </html>
+            """
+
+            # Attach HTML body
+            msg.attach(MIMEText(html_body, 'html'))
+
+            # Send email via SMTP
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                if use_tls:
+                    server.starttls()
+                server.login(sender, password)
+                server.send_message(msg)
+
+            logger.info(f"Email alert sent successfully to {len(recipients)} recipient(s): {alert['anomaly_type']}")
+
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error(f"SMTP authentication failed: {e}")
+        except smtplib.SMTPException as e:
+            logger.error(f"SMTP error sending email alert: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error sending email alert: {e}")
 
     def _send_webhook_alert(self, alert: Dict[str, Any]):
-        """Send webhook alert (placeholder - requires webhook URL)"""
-        logger.info(f"Webhook alert would be sent: {alert['anomaly_type']}")
-        # TODO: Implement webhook POST request
-        # import requests
-        # requests.post(webhook_url, json=alert)
-        pass
+        """
+        Send webhook alert via HTTP POST
+
+        Args:
+            alert: Alert dictionary to send
+        """
+        if not self.webhook_config:
+            logger.warning("Webhook configuration not provided. Skipping webhook alert.")
+            return
+
+        try:
+            # Extract webhook configuration
+            url = self.webhook_config.get('url')
+            method = self.webhook_config.get('method', 'POST').upper()
+            headers = self.webhook_config.get('headers', {'Content-Type': 'application/json'})
+            timeout = self.webhook_config.get('timeout', 10)
+            retry_attempts = self.webhook_config.get('retry_attempts', 3)
+            retry_delay = self.webhook_config.get('retry_delay', 1)
+
+            if not url:
+                logger.warning("Webhook URL not provided. Skipping webhook alert.")
+                return
+
+            # Prepare payload
+            payload = {
+                'alert_id': alert['alert_id'],
+                'timestamp': alert['timestamp'],
+                'severity': alert['severity'],
+                'anomaly_type': alert['anomaly_type'],
+                'source': {
+                    'ip': alert['src_ip'],
+                    'port': alert['src_port']
+                },
+                'destination': {
+                    'ip': alert['dst_ip'],
+                    'port': alert['dst_port']
+                },
+                'protocol': alert['protocol'],
+                'packet_size': alert['packet_size'],
+                'additional_info': alert.get('additional_info', {})
+            }
+
+            # Send webhook with retry logic
+            for attempt in range(retry_attempts):
+                try:
+                    if method == 'POST':
+                        response = requests.post(url, json=payload, headers=headers, timeout=timeout)
+                    elif method == 'PUT':
+                        response = requests.put(url, json=payload, headers=headers, timeout=timeout)
+                    else:
+                        logger.error(f"Unsupported HTTP method: {method}")
+                        return
+
+                    # Check response status
+                    response.raise_for_status()
+                    logger.info(f"Webhook alert sent successfully to {url} (status: {response.status_code}): {alert['anomaly_type']}")
+                    return
+
+                except requests.exceptions.Timeout:
+                    logger.warning(f"Webhook request timeout (attempt {attempt + 1}/{retry_attempts})")
+                    if attempt < retry_attempts - 1:
+                        import time
+                        time.sleep(retry_delay)
+                    else:
+                        logger.error(f"Webhook alert failed after {retry_attempts} attempts: timeout")
+
+                except requests.exceptions.ConnectionError as e:
+                    logger.warning(f"Webhook connection error (attempt {attempt + 1}/{retry_attempts}): {e}")
+                    if attempt < retry_attempts - 1:
+                        import time
+                        time.sleep(retry_delay)
+                    else:
+                        logger.error(f"Webhook alert failed after {retry_attempts} attempts: connection error")
+
+                except requests.exceptions.HTTPError as e:
+                    logger.error(f"Webhook HTTP error (status {response.status_code}): {e}")
+                    # Don't retry on HTTP errors (4xx, 5xx)
+                    return
+
+        except Exception as e:
+            logger.error(f"Unexpected error sending webhook alert: {e}")
 
     def get_alert_summary(self) -> Dict[str, Any]:
         """
