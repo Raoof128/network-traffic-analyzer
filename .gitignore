@@ -41,15 +41,29 @@ env/
 .coverage
 htmlcov/
 .tox/
+.mypy_cache/
+.hypothesis/
+
+# Caching
+.cache/
+*.cache
+
+# Environment variables
+.env
+.env.local
+.env.*.local
 
 # Project specific - Exclude generated files
 logs/*.log
 data/pcaps/*.pcap
+data/pcaps/uploads/*.pcap
 data/datasets/*.csv
 models/trained_models/*.pkl
 reports/*.html
 visualization/plots/*.png
 *.pyc
+*.pkl
+*.pickle
 
 # Keep directory structure
 !logs/.gitkeep
