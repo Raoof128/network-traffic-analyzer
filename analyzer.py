@@ -179,6 +179,12 @@ def realtime_mode(args):
 
     # Define alert callback
     def alert_callback(anomaly_info):
+        """
+        Callback function to handle anomaly detection alerts.
+
+        Args:
+            anomaly_info: Dictionary containing information about the detected anomaly
+        """
         alert_mgr.generate_alert(
             anomaly_type='ml_detection',
             packet_info=anomaly_info,

@@ -188,8 +188,8 @@ def evaluate_model(model, preprocessor, X_test, y_test, model_name: str):
     try:
         evaluator.plot_confusion_matrix(y_test, results['predictions'],
                                        save_path=f'visualization/plots/{model_name}_confusion_matrix.png')
-    except:
-        pass
+    except (ImportError, AttributeError, OSError) as e:
+        logger.debug(f"Could not generate confusion matrix plot: {e}")
 
     return results
 

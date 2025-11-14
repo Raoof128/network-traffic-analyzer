@@ -1,0 +1,91 @@
+# MANIFEST.in - Package distribution manifest
+# https://packaging.python.org/en/latest/guides/using-manifest-in/
+
+# Include essential documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+include SECURITY.md
+include INSTALL.md
+include QUICKSTART.md
+
+# Include project metadata
+include setup.py
+include pyproject.toml
+include requirements.txt
+include requirements-dev.txt
+
+# Include configuration files
+recursive-include config *.yaml *.yml
+recursive-include detection/rules *.yaml *.yml
+recursive-include features *.yaml *.yml
+
+# Include examples
+recursive-include examples *.py *.md *.yaml *.yml
+include examples/README.md
+
+# Include type hints marker
+include py.typed
+
+# Include documentation
+graft docs
+prune docs/_build
+
+# Include tests (for development installations)
+graft tests
+include pytest.ini
+include .coveragerc
+
+# Include code quality configuration
+include .pylintrc
+include mypy.ini
+include .flake8
+include .bandit.yaml
+include .pre-commit-config.yaml
+include .editorconfig
+
+# Include Docker files
+include Dockerfile
+include docker-compose.yml
+include .dockerignore
+
+# Include CI/CD
+recursive-include .github *.yml *.yaml *.md
+
+# Include Makefile
+include Makefile
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude *.so
+global-exclude *.dylib
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude *.swp
+global-exclude *.swo
+global-exclude *~
+
+# Exclude build artifacts
+prune build
+prune dist
+prune *.egg-info
+prune .eggs
+
+# Exclude cache and temporary files
+prune .mypy_cache
+prune .pytest_cache
+prune htmlcov
+prune .tox
+prune .hypothesis
+
+# Exclude data and models (too large for distribution)
+prune data/pcaps
+prune data/datasets
+prune models/trained_models
+
+# Keep directory structure markers
+recursive-include data .gitkeep
+recursive-include models/trained_models .gitkeep

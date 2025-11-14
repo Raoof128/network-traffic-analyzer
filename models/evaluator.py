@@ -366,15 +366,15 @@ class ModelEvaluator:
                 y_scores = model.predict_proba(X_test)[:, 1]
                 auc_score, _, _ = ModelEvaluator.calculate_roc_auc(y_test, y_scores)
                 metrics['roc_auc'] = auc_score
-            except:
-                pass
+            except (AttributeError, ValueError, IndexError) as e:
+                logger.debug(f"Could not calculate ROC AUC with predict_proba: {e}")
         elif hasattr(model, 'score_samples'):
             try:
                 y_scores = model.score_samples(X_test)
                 auc_score, _, _ = ModelEvaluator.calculate_roc_auc(y_test, -y_scores)  # Negate for correct direction
                 metrics['roc_auc'] = auc_score
-            except:
-                pass
+            except (AttributeError, ValueError) as e:
+                logger.debug(f"Could not calculate ROC AUC with score_samples: {e}")
 
         results = {
             'model_name': model_name,

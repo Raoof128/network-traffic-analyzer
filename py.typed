@@ -1,0 +1,5 @@
+# PEP 561 marker file for type hints distribution
+# https://www.python.org/dev/peps/pep-0561/
+
+# This file indicates that the package supports type checking
+# and contains inline type annotations or stub files.
