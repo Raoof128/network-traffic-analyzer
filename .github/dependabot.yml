@@ -1,0 +1,121 @@
+# Dependabot configuration for automated dependency updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Raoof128"
+    assignees:
+      - "Raoof128"
+    labels:
+      - "dependencies"
+      - "python"
+      - "automated"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "-"
+    ignore:
+      # Ignore major version updates for stable dependencies
+      - dependency-name: "scapy"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pandas"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "numpy"
+        update-types: ["version-update:semver-major"]
+    groups:
+      # Group development dependencies together
+      development:
+        patterns:
+          - "pytest*"
+          - "pylint"
+          - "mypy"
+          - "flake8"
+          - "black"
+          - "isort"
+          - "bandit"
+          - "safety"
+          - "sphinx*"
+          - "pre-commit"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group ML/data science dependencies
+      machine-learning:
+        patterns:
+          - "scikit-learn"
+          - "numpy"
+          - "pandas"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group visualization dependencies
+      visualization:
+        patterns:
+          - "matplotlib"
+          - "plotly"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group API dependencies
+      api:
+        patterns:
+          - "fastapi"
+          - "uvicorn"
+          - "pydantic"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Raoof128"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "automated"
+    commit-message:
+      prefix: "docker"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Raoof128"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

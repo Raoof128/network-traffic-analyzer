@@ -1,0 +1,49 @@
+# Code Owners for Network Traffic Analyzer
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @Raoof128
+
+# Documentation
+*.md @Raoof128
+/docs/ @Raoof128
+
+# Configuration files
+*.yaml @Raoof128
+*.yml @Raoof128
+*.toml @Raoof128
+*.ini @Raoof128
+*.cfg @Raoof128
+
+# Python source code
+*.py @Raoof128
+
+# Core modules
+/capture/ @Raoof128
+/features/ @Raoof128
+/models/ @Raoof128
+/detection/ @Raoof128
+/visualization/ @Raoof128
+/api/ @Raoof128
+/utils/ @Raoof128
+
+# Tests
+/tests/ @Raoof128
+
+# CI/CD
+/.github/ @Raoof128
+/.github/workflows/ @Raoof128
+
+# Docker
+Dockerfile @Raoof128
+docker-compose*.yml @Raoof128
+.dockerignore @Raoof128
+
+# Dependencies
+requirements*.txt @Raoof128
+setup.py @Raoof128
+pyproject.toml @Raoof128
+
+# Security
+SECURITY.md @Raoof128
+.bandit.yaml @Raoof128

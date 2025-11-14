@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/Raoof128/network-traffic-analyzer#readme
+    about: Please check the documentation before opening an issue
+  - name: Discussions
+    url: https://github.com/Raoof128/network-traffic-analyzer/discussions
+    about: Use GitHub Discussions for questions and general discussions
+  - name: Security Vulnerability
+    url: https://github.com/Raoof128/network-traffic-analyzer/security/advisories/new
+    about: Report security vulnerabilities privately

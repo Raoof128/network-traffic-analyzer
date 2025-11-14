@@ -1,0 +1,140 @@
+# Coverage.py configuration
+# https://coverage.readthedocs.io/en/latest/config.html
+
+[run]
+# Source code directories to measure
+source = .
+
+# Files to omit from coverage measurement
+omit =
+    */tests/*
+    */test_*.py
+    */__pycache__/*
+    */venv/*
+    */env/*
+    */.venv/*
+    */virtualenv/*
+    setup.py
+    */examples/*
+    */docs/*
+    */build/*
+    */dist/*
+    */.eggs/*
+    */site-packages/*
+    verify_improvements.py
+
+# Enable branch coverage
+branch = True
+
+# Concurrency mode (use if testing async code)
+# concurrency = multiprocessing
+
+# Parallel mode for concurrent test runs
+parallel = False
+
+# Plugins to load
+# plugins =
+
+[report]
+# Precision for coverage percentage
+precision = 2
+
+# Show lines that weren't executed
+show_missing = True
+
+# Skip covered files in the report
+skip_covered = False
+
+# Skip empty files
+skip_empty = True
+
+# Sort the report by this column
+sort = Cover
+
+# Fail if coverage is below this threshold
+fail_under = 70.0
+
+# Lines to exclude from coverage
+exclude_lines =
+    # Standard pragma
+    pragma: no cover
+
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+    raise ValueError\(".*"\)
+    raise TypeError\(".*"\)
+
+    # Non-runnable code
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+
+    # Abstract methods and protocols
+    @abstractmethod
+    @abc.abstractmethod
+    @typing.overload
+    @overload
+    \.\.\.
+    pass
+
+    # Debugging code
+    def __repr__
+    def __str__
+
+    # Platform-specific code
+    if sys.platform
+    if platform.system
+
+    # Version-specific code
+    if sys.version_info
+
+    # Optional dependencies
+    except ImportError:
+    except ModuleNotFoundError:
+
+    # Logger statements (optional)
+    logger\.debug
+    logger\.info
+
+# Ignore errors from source code not being found
+ignore_errors = False
+
+[html]
+# Directory for HTML coverage report
+directory = htmlcov
+
+# Title for the HTML report
+title = Network Traffic Analyzer Coverage Report
+
+# Show contexts in the HTML report (requires --context)
+show_contexts = False
+
+[xml]
+# File name for XML coverage report
+output = coverage.xml
+
+[json]
+# File name for JSON coverage report
+output = coverage.json
+
+# Pretty print the JSON output
+pretty_print = True
+
+# Show contexts in JSON report
+show_contexts = False
+
+[paths]
+# Map different source paths to the same file
+# Useful for testing across different environments
+source =
+    .
+    */network-traffic-analyzer
+    */site-packages
+
+[coverage:paths]
+# Paths mapping for combining coverage from different environments
+source =
+    network-traffic-analyzer/
+    */network-traffic-analyzer/
+    */lib/python*/site-packages/
